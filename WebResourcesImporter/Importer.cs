@@ -125,7 +125,7 @@ namespace WebResourcesImporter
             for (int i = 0; i < fileName.Length; i++)
             {
                 var c = fileName[i].ToString();
-                if (Regex.IsMatch(c, "[(a-zA-Z0-9._)]"))
+                if (Regex.IsMatch(c, "[(a-zA-Z0-9._)]+$"))
                 {
                     sb.Append(c);
                 }
