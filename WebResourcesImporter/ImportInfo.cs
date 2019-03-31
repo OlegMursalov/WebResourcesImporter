@@ -32,7 +32,7 @@ namespace WebResourcesImporter
             if (fileNamesSuccessful.Count > 0)
             {
                 int i = 1;
-                sb.AppendLine($"The following web resources were created in the solution {solutionName}:");
+                sb.AppendLine($"The following web resources were imported in the solution {solutionName}:");
                 foreach (var fnsucc in fileNamesSuccessful)
                 {
                     sb.AppendLine($"{i} - {fnsucc}");

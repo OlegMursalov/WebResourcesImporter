@@ -26,7 +26,7 @@ namespace WebResourcesImporter
 
         private async void Import_Click(object sender, RoutedEventArgs e)
         {
-            ProcessingControlsEnabled(false, SolutionName, Import, Disconnect);
+            ProcessingControlsEnabled(false, SolutionName, Import, Disconnect, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
             if (!string.IsNullOrEmpty(SolutionName.Text))
             {
                 var overwriteMod = OverwriteFilesCheckBox.IsChecked;
@@ -101,7 +101,7 @@ namespace WebResourcesImporter
             {
                 MessageBox.Show("Fill in the 'Solution name' field.");
             }
-            ProcessingControlsEnabled(true, SolutionName, Import, Disconnect);
+            ProcessingControlsEnabled(true, SolutionName, Import, Disconnect, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
         }
 
         private void Disconnect_Click(object sender, RoutedEventArgs e)
