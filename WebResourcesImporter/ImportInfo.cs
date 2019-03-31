@@ -41,7 +41,7 @@ namespace WebResourcesImporter
             }
             else
             {
-                sb.AppendLine($"No web resource was created in the solution {solutionName}.");
+                sb.AppendLine($"No web resource was imported in the solution {solutionName}.");
             }
             if (fileNamesError.Count > 0)
             {

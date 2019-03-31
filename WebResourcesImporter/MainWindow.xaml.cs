@@ -29,7 +29,9 @@ namespace WebResourcesImporter
             ProcessingControlsEnabled(false, SolutionName, Import, Disconnect);
             if (!string.IsNullOrEmpty(SolutionName.Text))
             {
-                var importer = new Importer();
+                var overwriteMod = OverwriteFilesCheckBox.IsChecked;
+                var changeTheCharactersMod = ChangeTheCharactersCheckBox.IsChecked;
+                var importer = new Importer(overwriteMod, changeTheCharactersMod);
                 var solutionName = SolutionName.Text;
                 var solution = await Task.Run<Entity>(() => {
                     return importer.GetSolutionByName(_service, solutionName);

@@ -10,6 +10,15 @@ namespace WebResourcesImporter
 {
     public class Importer
     {
+        private bool? overwriteMod;
+        private bool? changeTheCharactersMod;
+
+        public Importer(bool? overwriteMod, bool? changeTheCharactersMod)
+        {
+            this.overwriteMod = overwriteMod;
+            this.changeTheCharactersMod = changeTheCharactersMod;
+        }
+
         public Entity GetSolutionByName(IOrganizationService service, string solutionName)
         {
             var query = new QueryExpression()
@@ -65,8 +74,34 @@ namespace WebResourcesImporter
                             Target = CreateWebResourceEntity(fileInfo.Name, prefix, base64)
                         };
                         createRequest.Parameters.Add("SolutionUniqueName", solutionName);
-                        var result = service.Execute(createRequest);
-                        importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                        if (overwriteMod.HasValue && overwriteMod.Value)
+                        {
+                            var query = new QueryExpression()
+                            {
+                                EntityName = "webresource",
+                                ColumnSet = new ColumnSet(true),
+                                Criteria = new FilterExpression()
+                            };
+                            query.Criteria.AddCondition("name", ConditionOperator.Equal, $"{prefix}_{fileInfo.Name}");
+                            var result = service.RetrieveMultiple(query);
+                            if (result != null && result.Entities != null && result.Entities.Count > 0)
+                            {
+                                var webResource = result.Entities.First();
+                                webResource["content"] = base64;
+                                service.Update(webResource);
+                                importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                            }
+                            else
+                            {
+                                service.Execute(createRequest);
+                                importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                            }
+                        }
+                        else
+                        {
+                            service.Execute(createRequest);
+                            importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                        }
                     }
                     catch (Exception ex)
                     {

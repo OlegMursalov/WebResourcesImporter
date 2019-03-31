@@ -15,3 +15,4 @@ c:\users\олег\documents\visual studio 2015\Projects\WebResourcesImporter\Web
 c:\users\олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\bin\Debug\Microsoft.Xrm.Sdk.xml
 c:\users\олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\bin\Debug\Microsoft.Crm.Sdk.Proxy.dll
 c:\users\олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\bin\Debug\Microsoft.Crm.Sdk.Proxy.xml
+c:\users\олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Debug\WebResourcesImporter.csprojResolveAssemblyReference.cache
