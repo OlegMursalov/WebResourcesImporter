@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace WebResourcesImporter
 {
@@ -64,14 +66,19 @@ namespace WebResourcesImporter
                 var fileInfo = new FileInfo(fileNames[i]);
                 using (var fs = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
                 {
+                    var fileName = fileInfo.Name;
                     try
                     {
                         var bytes = new byte[fs.Length];
                         fs.Read(bytes, 0, bytes.Length);
                         var base64 = Convert.ToBase64String(bytes, 0, bytes.Length);
+                        if (changeTheCharactersMod.HasValue && changeTheCharactersMod.Value)
+                        {
+                            fileName = GetValidFileName(fileName);
+                        }
                         var createRequest = new CreateRequest
                         {
-                            Target = CreateWebResourceEntity(fileInfo.Name, prefix, base64)
+                            Target = CreateWebResourceEntity(fileName, prefix, base64)
                         };
                         createRequest.Parameters.Add("SolutionUniqueName", solutionName);
                         if (overwriteMod.HasValue && overwriteMod.Value)
@@ -82,34 +89,52 @@ namespace WebResourcesImporter
                                 ColumnSet = new ColumnSet(true),
                                 Criteria = new FilterExpression()
                             };
-                            query.Criteria.AddCondition("name", ConditionOperator.Equal, $"{prefix}_{fileInfo.Name}");
+                            query.Criteria.AddCondition("name", ConditionOperator.Equal, $"{prefix}_{fileName}");
                             var result = service.RetrieveMultiple(query);
                             if (result != null && result.Entities != null && result.Entities.Count > 0)
                             {
                                 var webResource = result.Entities.First();
                                 webResource["content"] = base64;
                                 service.Update(webResource);
-                                importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                                importInfo.AddNameSuccessful($"{prefix}_{fileName}");
                             }
                             else
                             {
                                 service.Execute(createRequest);
-                                importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                                importInfo.AddNameSuccessful($"{prefix}_{fileName}");
                             }
                         }
                         else
                         {
                             service.Execute(createRequest);
-                            importInfo.AddNameSuccessful($"{prefix}_{fileInfo.Name}");
+                            importInfo.AddNameSuccessful($"{prefix}_{fileName}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        importInfo.AddError($"{prefix}_{fileInfo.Name}", ex.Message);
+                        importInfo.AddError($"{prefix}_{fileName}", ex.Message);
                     }
                 }
             }
             return importInfo;
+        }
+
+        private string GetValidFileName(string fileName)
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < fileName.Length; i++)
+            {
+                var c = fileName[i].ToString();
+                if (Regex.IsMatch(c, "[(a-zA-Z0-9._)]"))
+                {
+                    sb.Append(c);
+                }
+                else
+                {
+                    sb.Append("_");
+                }
+            }
+            return sb.ToString();
         }
 
         private Entity CreateWebResourceEntity(string fileName, string prefix, string base64)

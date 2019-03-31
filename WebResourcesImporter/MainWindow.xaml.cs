@@ -107,7 +107,7 @@ namespace WebResourcesImporter
         private void Disconnect_Click(object sender, RoutedEventArgs e)
         {
             _service = null;
-            ProcessingControlsEnabled(true, SOAPServiceUri, UserName, Password, Connect);
+            ProcessingControlsEnabled(true, SOAPServiceUri, UserName, Password, Connect, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
             CommonProcessInterface(isConnect: false);
         }
 
@@ -130,7 +130,7 @@ namespace WebResourcesImporter
 
         private async void Connect_Click(object sender, RoutedEventArgs e)
         {
-            ProcessingControlsEnabled(false, SOAPServiceUri, UserName, Password, Connect);
+            ProcessingControlsEnabled(false, SOAPServiceUri, UserName, Password, Connect, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
             var soapServiceUri = SOAPServiceUri.Text;
             var solutionName = SolutionName.Text;
             var userName = UserName.Text;
@@ -178,7 +178,7 @@ namespace WebResourcesImporter
             {
                 MessageBox.Show("Fill in the 'SOAP Service uri', 'Username' and 'Password' fields.");
             }
-            ProcessingControlsEnabled(true, SOAPServiceUri, UserName, Password, Connect);
+            ProcessingControlsEnabled(true, SOAPServiceUri, UserName, Password, Connect, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
         }
     }
 }
