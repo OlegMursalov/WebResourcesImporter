@@ -147,7 +147,7 @@ namespace WebResourcesImporter
             {
                 IOrganizationService service = null;
                 var clientCredentials = new ClientCredentials();
-                clientCredentials.UserName.UserName = userName; // Oleg@mursalov.onmicrosoft.com
+                clientCredentials.UserName.UserName = userName; // Oleg@mursalov.onmicrosoft.com // https://mursalov.crm4.dynamics.com/
                 clientCredentials.UserName.Password = password;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 try
