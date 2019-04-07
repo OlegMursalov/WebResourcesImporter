@@ -26,38 +26,38 @@ namespace WebResourcesImporter
             fileNamesError.Add(fileName, message);
         }
 
-        public string GetInfo()
+        public List<string> GetInfo()
         {
-            var sb = new StringBuilder();
+            List<string> info = new List<string>();
             if (fileNamesSuccessful.Count > 0)
             {
                 int i = 1;
-                sb.AppendLine($"The following web resources were imported in the solution {solutionName}:");
+                info.Add($"The following web resources were imported in the solution {solutionName}:");
                 foreach (var fnsucc in fileNamesSuccessful)
                 {
-                    sb.AppendLine($"{i} - {fnsucc}");
+                    info.Add($"{i} - {fnsucc}");
                     i++;
                 }
             }
             else
             {
-                sb.AppendLine($"No web resource was imported in the solution {solutionName}.");
+                info.Add($"No web resource was imported in the solution {solutionName}.");
             }
             if (fileNamesError.Count > 0)
             {
                 int i = 1;
-                sb.AppendLine("The following files could not be imported:");
+                info.Add("The following files could not be imported:");
                 foreach (var fnerr in fileNamesError)
                 {
-                    sb.AppendLine($"{i} - {fnerr.Key} - {fnerr.Value}");
+                    info.Add($"{i} - {fnerr.Key} - {fnerr.Value}");
                     i++;
                 }
             }
             else
             {
-                sb.AppendLine($"No errors. All files imported successfully.");
+                info.Add($"No errors. All files imported successfully.");
             }
-            return sb.ToString();
+            return info;
         }
     }
 }

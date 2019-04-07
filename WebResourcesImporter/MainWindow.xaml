@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebResourcesImporter"
         mc:Ignorable="d"
-        Title="WebResourcesImporter" Height="600" Width="515" Background="#FFF3D8D7">
+        Title="WebResourcesImporter" Height="600" Width="525" Background="#FFF3D8D7">
     <Grid>
         <Label x:Name="SOAPServiceUriLabel" Content="SOAP service uri:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="SOAPServiceUri" HorizontalAlignment="Left" Height="23" Margin="10,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="195"/>
@@ -14,13 +14,19 @@
         <Label x:Name="PasswordLabel" Content="Password:" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="120"/>
         <PasswordBox x:Name="Password" HorizontalAlignment="Left" Height="23" Margin="10,135,0,0" VerticalAlignment="Top" Width="195"/>
         <Button x:Name="Connect" Content="Connect to CRM" HorizontalAlignment="Left" Margin="10,163,0,0" VerticalAlignment="Top" Width="195" Height="23" Click="Connect_Click"/>
-        <Button Visibility="Hidden" x:Name="Import" Content="Select files and import to CRM" HorizontalAlignment="Left" Margin="10,257,0,0" VerticalAlignment="Top" Width="195" Click="Import_Click" Height="23"/>
-        <Button Visibility="Hidden" x:Name="Disconnect" Content="Disconnect from CRM" Height="23" HorizontalAlignment="Left" Margin="10,163,0,0" VerticalAlignment="Top" Width="195" Click="Disconnect_Click"/>
-        <Label Visibility="Hidden" x:Name="SolutionNameLabel" Content="Solution name:" HorizontalAlignment="Left" Margin="10,204,0,0" VerticalAlignment="Top"/>
-        <TextBox Visibility="Hidden" x:Name="SolutionName" HorizontalAlignment="Left" Height="23" Margin="10,229,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="195"/>
-        <Label Visibility="Hidden" x:Name="LoadingLabel" Content="Wait, the files are being imported." HorizontalAlignment="Left" Margin="10,280,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="label" Content="Settings:" HorizontalAlignment="Left" Margin="214,10,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="OverwriteFilesCheckBox" Content="Overwrite files" HorizontalAlignment="Left" Margin="214,36,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="ChangeTheCharactersCheckBox" Content="Change the characters in the name if necessary" HorizontalAlignment="Left" Margin="214,59,0,0" VerticalAlignment="Top" Height="14"/>
+        <Button Visibility="Hidden" x:Name="Import" Content="Select files and import to CRM" HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top" Width="195" Click="Import_Click" Height="34"/>
+        <Button Visibility="Hidden" x:Name="Disconnect" Content="Disconnect from CRM" Height="23" HorizontalAlignment="Left" Margin="10,191,0,0" VerticalAlignment="Top" Width="195" Click="Disconnect_Click"/>
+        <Label Visibility="Hidden" x:Name="SolutionNameLabel" Content="Solution name:" HorizontalAlignment="Left" Margin="227,11,0,0" VerticalAlignment="Top"/>
+        <TextBox TextChanged="SolutionName_TextChanged" Visibility="Hidden" x:Name="SolutionName" HorizontalAlignment="Left" Height="23" Margin="226,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="195"/>
+        <Label Visibility="Hidden" x:Name="LoadingLabel" Content="Wait, the files are being imported." HorizontalAlignment="Left" Margin="10,279,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="OverwriteFilesCheckBox" Checked="OverwriteFilesCheckBox_Change" Unchecked="OverwriteFilesCheckBox_Change" Content="Overwrite files" HorizontalAlignment="Left" Margin="227,244,0,0" VerticalAlignment="Top" Height="15" Width="98" Visibility="Hidden"/>
+        <CheckBox x:Name="ChangeTheCharactersCheckBox" Checked="ChangeTheCharactersCheckBox_Change" Unchecked="ChangeTheCharactersCheckBox_Change" Content="Change the characters in the name if necessary" HorizontalAlignment="Left" Margin="227,266,0,0" VerticalAlignment="Top" Height="21" Width="278" Visibility="Hidden"/>
+        <Label Visibility="Hidden" x:Name="SettingsImport" Content="Setting for import:" HorizontalAlignment="Left" Margin="227,219,0,0" VerticalAlignment="Top"/>
+        <Button Visibility="Hidden" x:Name="SelectSolution" Click="Select_Solution_Click"  Content="Select solution" HorizontalAlignment="Left" Margin="227,64,0,0" VerticalAlignment="Top" Width="194" Height="23" />
+        <RadioButton Visibility="Hidden" x:Name="ImportRadio" IsChecked="True" Content="Import" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="227,140,0,0"/>
+        <RadioButton Visibility="Hidden" x:Name="ExportRadio" Content="Export" HorizontalAlignment="Left" Margin="227,167,0,0" VerticalAlignment="Top"/>
+        <Label Visibility="Hidden" x:Name="SelectActionLabel" Content="Select action:" HorizontalAlignment="Left" Margin="227,110,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="TitleAction" Content="Import action:" HorizontalAlignment="Left" Margin="10,219,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.422,0.097" Visibility="Hidden"/>
+        <ListBox Visibility="Hidden" x:Name="Info" HorizontalAlignment="Left" Height="100" Margin="10,287,0,0" VerticalAlignment="Top" Width="489"/>
     </Grid>
 </Window>

@@ -12,13 +12,31 @@ namespace WebResourcesImporter
 {
     public class Importer
     {
-        private bool? overwriteMod;
-        private bool? changeTheCharactersMod;
+        private string prefix;
+        private string solutionName;
 
-        public Importer(bool? overwriteMod, bool? changeTheCharactersMod)
+        public Importer()
         {
-            this.overwriteMod = overwriteMod;
-            this.changeTheCharactersMod = changeTheCharactersMod;
+        }
+
+        private void SetPrefix(string prefix)
+        {
+            this.prefix = prefix;
+        }
+
+        public string GetPrefix()
+        {
+            return prefix;
+        }
+
+        private void SetSolutionName(string solutionName)
+        {
+            this.solutionName = solutionName;
+        }
+
+        public string GetSolutionName()
+        {
+            return solutionName;
         }
 
         public Entity GetSolutionByName(IOrganizationService service, string solutionName)
@@ -35,17 +53,46 @@ namespace WebResourcesImporter
                 var result = service.RetrieveMultiple(query);
                 if (result != null && result.Entities != null && result.Entities.Count > 0)
                 {
-                    return result.Entities.FirstOrDefault();
+                    var solution = result.Entities.FirstOrDefault();
+                    SetSolutionName(solutionName);
+                    return solution;
                 }
             }
             catch (Exception)
             {
                 
             }
+            SetSolutionName(null);
             return null;
         }
 
-        public Entity GetPublisherById(IOrganizationService service, Guid id)
+        public string GetPrefixFromSolutionPublisher(IOrganizationService service, Entity solution)
+        {
+            if (solution.Contains("publisherid"))
+            {
+                var publisherid = solution["publisherid"] as EntityReference;
+                if (publisherid != null)
+                {
+                    var publisher = GetPublisherById(service, publisherid.Id);
+                    if (publisher != null)
+                    {
+                        if (publisher.Contains("customizationprefix"))
+                        {
+                            var prefix = publisher["customizationprefix"] as string;
+                            if (!string.IsNullOrEmpty(prefix))
+                            {
+                                SetPrefix(prefix);
+                                return prefix;
+                            }
+                        }
+                    }
+                }
+            }
+            SetPrefix(null);
+            return string.Empty;
+        }
+
+        private Entity GetPublisherById(IOrganizationService service, Guid id)
         {
             try
             {
@@ -58,7 +105,7 @@ namespace WebResourcesImporter
             return null;
         }
 
-        public ImportInfo Process(IOrganizationService service, string solutionName, string prefix, string[] fileNames)
+        public ImportInfo Process(IOrganizationService service, string[] fileNames, bool? overwriteMod, bool? changeTheCharactersMod)
         {
             var importInfo = new ImportInfo(solutionName);
             for (int i = 0; i < fileNames.Length; i++)
