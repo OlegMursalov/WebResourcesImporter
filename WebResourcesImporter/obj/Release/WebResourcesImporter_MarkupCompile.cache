@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Debug\
+C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Release\
 WebResourcesImporter
 none
 false
-DEBUG;TRACE
+TRACE
 C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\App.xaml
 11151548125
 
-12-1856931957
-18-1293139076
+71876960067
+171232965898
 MainWindow.xaml;
 
-True
+False
 

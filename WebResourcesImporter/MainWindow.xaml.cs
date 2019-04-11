@@ -3,11 +3,15 @@ using Microsoft.Win32;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.ServiceModel.Description;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using WinForms = System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -16,7 +20,8 @@ namespace WebResourcesImporter
     public partial class MainWindow : Window
     {
         private IOrganizationService _service = null;
-        private Importer _importer = null;
+        private ImpExp _impExp = null;
+        private ExportInfo _exportInfo = null;
 
         private static string types = "*.html;*.css;*.js;*.xml;*.png;*.jpg;*.gif;*.xap;*.xsl;*.ico;*.svg;*.resx";
 
@@ -29,7 +34,7 @@ namespace WebResourcesImporter
         {
             ProcessingControlsVisibility(false, Info);
             ProcessingControlsEnabled(false, SolutionName, SelectSolution, ImportRadio, ExportRadio, Import, Disconnect, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
-            if (_importer != null)
+            if (_impExp != null)
             {
                 var fileDialog = new OpenFileDialog();
                 fileDialog.Filter = $"Web resource ({types})|{types}";
@@ -43,7 +48,7 @@ namespace WebResourcesImporter
                     var fileNames = fileDialog.FileNames;
                     var overwriteMod = OverwriteFilesCheckBox.IsChecked;
                     var changeTheCharactersMod = ChangeTheCharactersCheckBox.IsChecked;
-                    var importInfo = await Task.Run(() => _importer.Process(_service, fileNames, overwriteMod, changeTheCharactersMod));
+                    var importInfo = await Task.Run(() => _impExp.Import(_service, fileNames, overwriteMod, changeTheCharactersMod));
                     LoadingLabel.Visibility = Visibility.Hidden;
                     SetMainWindowBackground(Color.FromRgb(213, 240, 222));
                     var infoList = importInfo.GetInfo();
@@ -61,7 +66,8 @@ namespace WebResourcesImporter
         private void Disconnect_Click(object sender, RoutedEventArgs e)
         {
             _service = null;
-            _importer = null;
+            _impExp = null;
+            _exportInfo = null;
             SetMainWindowBackground(Color.FromRgb(243, 216, 215));
             ProcessingControlsEnabled(true, SOAPServiceUri, UserName, Password, Connect);
             ProcessingControlsVisibility(false, Disconnect, SolutionNameLabel, SolutionName, SelectSolution, SelectActionLabel, 
@@ -71,6 +77,7 @@ namespace WebResourcesImporter
             ImportRadio.IsChecked = true;
             OverwriteFilesCheckBox.IsChecked = false;
             ChangeTheCharactersCheckBox.IsChecked = false;
+            RemoveFileCheckBoxes();
         }
 
         private void SetMainWindowBackground(Color color)
@@ -96,21 +103,22 @@ namespace WebResourcesImporter
 
         private async void Select_Solution_Click(object sender, RoutedEventArgs e)
         {
+            RemoveFileCheckBoxes();
             ProcessingControlsEnabled(false, SolutionName, Disconnect, SelectSolution);
-            ProcessingControlsVisibility(false, SelectActionLabel, ImportRadio, ExportRadio, TitleAction, Import, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info);
-            _importer = new Importer();
+            ProcessingControlsVisibility(false, SelectActionLabel, ImportRadio, ExportRadio, TitleAction, Import, Export, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info);
+            _impExp = new ImpExp();
             var solutionName = SolutionName.Text;
             if (!string.IsNullOrEmpty(solutionName))
             {
                 var solution = await Task.Run<Entity>(() =>
                 {
-                    return _importer.GetSolutionByName(_service, solutionName);
+                    return _impExp.GetSolutionByName(_service, solutionName);
                 });
                 if (solution != null)
                 {
                     var prefix = await Task.Run<string>(() =>
                     {
-                        return _importer.GetPrefixFromSolutionPublisher(_service, solution);
+                        return _impExp.GetPrefixFromSolutionPublisher(_service, solution);
                     });
                     if (!string.IsNullOrEmpty(prefix))
                     {
@@ -204,6 +212,7 @@ namespace WebResourcesImporter
         private void SolutionName_TextChanged(object sender, TextChangedEventArgs e)
         {
             ImportRadio.IsChecked = true;
+            TitleAction.Content = "Import action:";
             OverwriteFilesCheckBox.IsChecked = false;
             ChangeTheCharactersCheckBox.IsChecked = false;
             Info.Items.Clear();
@@ -220,6 +229,138 @@ namespace WebResourcesImporter
         {
             Info.Items.Clear();
             ProcessingControlsVisibility(false, Info);
+        }
+
+        private void RemoveFileCheckBoxes()
+        {
+            var list = new List<CheckBox>();
+            foreach (var item in MainGrid.Children)
+            {
+                var checkBox = item as CheckBox;
+                if (checkBox != null && checkBox.Name != null && checkBox.Name.Contains("File_"))
+                {
+                    list.Add(checkBox);
+                }
+            }
+            foreach (var item in list)
+            {
+                MainGrid.Children.Remove(item);
+            }
+        }
+
+        private async void Import_Export_Radio_Checked(object sender, RoutedEventArgs e)
+        {
+            var pressed = sender as RadioButton;
+            var content = pressed.Content as string;
+            if (content == "Import")
+            {
+                TitleAction.Content = "Import action:";
+                OverwriteFilesCheckBox.IsChecked = false;
+                ChangeTheCharactersCheckBox.IsChecked = false;
+                Info.Items.Clear();
+                ProcessingControlsVisibility(false, Export);
+                ProcessingControlsVisibility(true, SelectActionLabel, ImportRadio, ExportRadio, TitleAction, Import, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox);
+                RemoveFileCheckBoxes();
+            }
+            else if (content == "Export")
+            {
+                TitleAction.Content = "Wait, web resources are retrieved from the solution.";
+                SetMainWindowBackground(Color.FromRgb(243, 240, 215));
+                ProcessingControlsEnabled(false, Disconnect, SolutionName, SelectSolution, ImportRadio, ExportRadio);
+                ProcessingControlsVisibility(false, Import, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info, Export);
+                _exportInfo = await Task.Run<ExportInfo>(() =>
+                {
+                    return _impExp.GetFilesFromSolution(_service);
+                });
+                if (_exportInfo != null && _exportInfo.Files != null && _exportInfo.Files.Count > 0)
+                {
+                    int marginTop = 245;
+                    var files = _exportInfo.Files.ToArray();
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        MainGrid.Children.Add(new CheckBox
+                        {
+                            Name = $"File_{i}",
+                            Content = files[i].Name,
+                            Margin = new Thickness(10, marginTop, 0, 0),
+                            VerticalAlignment = VerticalAlignment.Top,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            Width = 400,
+                            Height = 23
+                        });
+                        marginTop += 25;
+                    }
+                    TitleAction.Content = "Export action:";
+                    Export.Margin = new Thickness(10, marginTop, 0, 0);
+                }
+                else
+                {
+                    TitleAction.Content = "Solution does not contain web resources.";
+                }
+                SetMainWindowBackground(Color.FromRgb(213, 240, 222));
+                ProcessingControlsEnabled(true, Disconnect, SolutionName, SelectSolution, ImportRadio, ExportRadio);
+                ProcessingControlsVisibility(true, Export);
+            }
+        }
+
+        private async void Export_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedFiles = new List<string>();
+            if (_exportInfo != null && _exportInfo.Files != null)
+            {
+                foreach (var item in MainGrid.Children)
+                {
+                    var checkBox = item as CheckBox;
+                    if (checkBox != null && checkBox.Name != null && checkBox.Name.Contains("File_") && checkBox.IsChecked != null && checkBox.IsChecked.Value)
+                    {
+                        var fileName = checkBox.Content as string;
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            selectedFiles.Add(fileName);
+                        }
+                    }
+                }
+                if (selectedFiles.Count > 0)
+                {
+                    using (var fbd = new WinForms.FolderBrowserDialog())
+                    {
+                        WinForms.DialogResult result = fbd.ShowDialog();
+                        if (result == WinForms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                        {
+                            TitleAction.Content = "Wait, exporting web resources.";
+                            SetMainWindowBackground(Color.FromRgb(243, 240, 215));
+                            var path = fbd.SelectedPath;
+                            await Task.Run(() =>
+                            {
+                                foreach (var fileName in selectedFiles)
+                                {
+                                    var eFile = _exportInfo.Files.Where(ef => ef.Name == fileName).FirstOrDefault();
+                                    if (eFile != null)
+                                    {
+                                        try
+                                        {
+                                            var bytes = Convert.FromBase64String(eFile.Body);
+                                            File.WriteAllBytes($"{path}\\{eFile.Name}", bytes);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    TitleAction.Content = "Export action:";
+                    SetMainWindowBackground(Color.FromRgb(213, 240, 222));
+                }
+                else
+                {
+                    TitleAction.Content = "Export action:";
+                    SetMainWindowBackground(Color.FromRgb(213, 240, 222));
+                    MessageBox.Show("No web resources selected.");
+                }
+            }
         }
     }
 }

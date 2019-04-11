@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,13 @@ using System.Text.RegularExpressions;
 
 namespace WebResourcesImporter
 {
-    public class Importer
+    public class ImpExp
     {
         private string prefix;
         private string solutionName;
+        private Guid solutionId;
 
-        public Importer()
+        public ImpExp()
         {
         }
 
@@ -39,6 +41,16 @@ namespace WebResourcesImporter
             return solutionName;
         }
 
+        private void SetSolutionId(Guid solutionId)
+        {
+            this.solutionId = solutionId;
+        }
+
+        public Guid GetSolutionId()
+        {
+            return solutionId;
+        }
+
         public Entity GetSolutionByName(IOrganizationService service, string solutionName)
         {
             var query = new QueryExpression()
@@ -55,6 +67,14 @@ namespace WebResourcesImporter
                 {
                     var solution = result.Entities.FirstOrDefault();
                     SetSolutionName(solutionName);
+                    if (solution.Contains("solutionid"))
+                    {
+                        SetSolutionId((Guid)solution["solutionid"]);
+                    }
+                    else
+                    {
+                        SetSolutionId(Guid.Empty);
+                    }
                     return solution;
                 }
             }
@@ -63,6 +83,7 @@ namespace WebResourcesImporter
                 
             }
             SetSolutionName(null);
+            SetSolutionId(Guid.Empty);
             return null;
         }
 
@@ -105,7 +126,56 @@ namespace WebResourcesImporter
             return null;
         }
 
-        public ImportInfo Process(IOrganizationService service, string[] fileNames, bool? overwriteMod, bool? changeTheCharactersMod)
+        public ExportInfo GetFilesFromSolution(IOrganizationService service)
+        {
+            var exportInfo = new ExportInfo(solutionName);
+            try
+            {
+                var query = new QueryExpression()
+                {
+                    EntityName = "webresource",
+                    ColumnSet = new ColumnSet(true),
+                    Criteria = new FilterExpression()
+                };
+                query.Criteria.AddCondition("iscustomizable", ConditionOperator.Equal, true);
+                var result = service.RetrieveMultiple(query);
+                if (result != null && result.Entities != null && result.Entities.Count > 0)
+                {
+                    var preStr = prefix + "_";
+                    foreach (var item in result.Entities)
+                    {
+                        if (item.Contains("name") && item.Contains("webresourcetype") && item.Contains("content"))
+                        {
+                            var name = item["name"] as string;
+                            if (name.StartsWith(preStr))
+                            {
+                                var body = item["content"] as string;
+                                var webresourcetype = item["webresourcetype"] as OptionSetValue;
+                                if (webresourcetype != null)
+                                {
+                                    var ext = GetExtByTypeValue(webresourcetype.Value);
+                                    if (!string.IsNullOrEmpty(ext))
+                                    {
+                                        if (!name.EndsWith(ext))
+                                        {
+                                            name += ext;
+                                        }
+                                        exportInfo.AddFileInfo(name, ext, body);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            return exportInfo;
+        }
+
+        public ImportInfo Import(IOrganizationService service, string[] fileNames, bool? overwriteMod, bool? changeTheCharactersMod)
         {
             var importInfo = new ImportInfo(solutionName);
             for (int i = 0; i < fileNames.Length; i++)
@@ -194,6 +264,39 @@ namespace WebResourcesImporter
             webResource["name"] = $"{prefix}_{fileName}";
             webResource["webresourcetype"] = webResourceType;
             return webResource;
+        }
+
+        private string GetExtByTypeValue(int value)
+        {
+            switch (value)
+            {
+                case 1:
+                    return ".html";
+                case 2:
+                    return ".css";
+                case 3:
+                    return ".js";
+                case 4:
+                    return ".xml";
+                case 5:
+                    return ".png";
+                case 6:
+                    return ".jpg";
+                case 7:
+                    return ".gif";
+                case 8:
+                    return ".xap";
+                case 9:
+                    return ".xsl";
+                case 10:
+                    return ".ico";
+                case 11:
+                    return ".svg";
+                case 12:
+                    return ".resx";
+                default:
+                    return string.Empty;
+            }
         }
 
         private int GetWebResourceTypeValue(string fileExt)
