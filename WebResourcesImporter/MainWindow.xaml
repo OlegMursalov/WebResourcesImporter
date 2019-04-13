@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebResourcesImporter"
         mc:Ignorable="d"
-        Title="WebResourcesImporter" Height="600" Width="525" Background="#FFF3D8D7">
+        Title="ImpExpWebResources" Height="600" Width="600" Background="#FFF3D8D7">
     <ScrollViewer>
         <Grid x:Name="MainGrid">
             <Label x:Name="SOAPServiceUriLabel" Content="SOAP service uri:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>

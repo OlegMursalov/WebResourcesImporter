@@ -15,4 +15,3 @@ C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\Web
 C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Debug\WebResourcesImporter.csproj.GenerateResource.Cache
 C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Debug\WebResourcesImporter.exe
 C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Debug\WebResourcesImporter.pdb
-C:\Users\Олег\documents\visual studio 2015\Projects\WebResourcesImporter\WebResourcesImporter\obj\Debug\WebResourcesImporter.csprojResolveAssemblyReference.cache

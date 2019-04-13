@@ -75,6 +75,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ExportInfo.cs" />
+    <Compile Include="FInfo.cs" />
     <Compile Include="ImpExp.cs" />
     <Compile Include="ImportInfo.cs" />
     <Compile Include="MainWindow.xaml.cs">

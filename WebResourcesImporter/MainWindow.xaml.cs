@@ -13,7 +13,6 @@ using System.Windows;
 using System.Windows.Controls;
 using WinForms = System.Windows.Forms;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace WebResourcesImporter
 {
@@ -276,6 +275,8 @@ namespace WebResourcesImporter
                 {
                     int marginTop = 245;
                     var files = _exportInfo.Files.ToArray();
+                    CreateSelectAllCheckBox(marginTop);
+                    marginTop += 25;
                     for (int i = 0; i < files.Length; i++)
                     {
                         MainGrid.Children.Add(new CheckBox
@@ -303,6 +304,45 @@ namespace WebResourcesImporter
             }
         }
 
+        private void CreateSelectAllCheckBox(int marginTop)
+        {
+            var selectAllCheckBox = new CheckBox
+            {
+                Name = $"File_All",
+                Content = "Select all",
+                Margin = new Thickness(10, marginTop, 0, 0),
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Width = 400,
+                Height = 23
+            };
+            selectAllCheckBox.Checked += SelectAllCheckBox_Checked;
+            selectAllCheckBox.Unchecked += SelectAllCheckBox_Unchecked;
+            MainGrid.Children.Add(selectAllCheckBox);
+        }
+
+        private void SelectAllCheckBox_Common(bool flag)
+        {
+            foreach (var item in MainGrid.Children)
+            {
+                var checkBox = item as CheckBox;
+                if (checkBox != null && checkBox.Name != null && checkBox.Name.Contains("File_"))
+                {
+                    checkBox.IsChecked = flag;
+                }
+            }
+        }
+
+        private void SelectAllCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SelectAllCheckBox_Common(false);
+        }
+
+        private void SelectAllCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            SelectAllCheckBox_Common(true);
+        }
+
         private async void Export_Click(object sender, RoutedEventArgs e)
         {
             var selectedFiles = new List<string>();
@@ -327,7 +367,10 @@ namespace WebResourcesImporter
                         WinForms.DialogResult result = fbd.ShowDialog();
                         if (result == WinForms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                         {
+                            int i = 0;
                             TitleAction.Content = "Wait, exporting web resources.";
+                            ProcessingControlsEnabled(false, SolutionName, SelectSolution, ImportRadio, ExportRadio, Disconnect, Export);
+                            ProcessingControlsEnabled(false, "File_");
                             SetMainWindowBackground(Color.FromRgb(243, 240, 215));
                             var path = fbd.SelectedPath;
                             await Task.Run(() =>
@@ -341,6 +384,7 @@ namespace WebResourcesImporter
                                         {
                                             var bytes = Convert.FromBase64String(eFile.Body);
                                             File.WriteAllBytes($"{path}\\{eFile.Name}", bytes);
+                                            i++;
                                         }
                                         catch (Exception ex)
                                         {
@@ -349,9 +393,19 @@ namespace WebResourcesImporter
                                     }
                                 }
                             });
+                            if (i > 0)
+                            {
+                                MessageBox.Show($"{i} files successfully exported to folder '{path}'.");
+                            }
+                            else
+                            {
+                                MessageBox.Show($"No files were exported.");
+                            }
                         }
                     }
                     TitleAction.Content = "Export action:";
+                    ProcessingControlsEnabled(true, SolutionName, SelectSolution, ImportRadio, ExportRadio, Disconnect, Export);
+                    ProcessingControlsEnabled(true, "File_");
                     SetMainWindowBackground(Color.FromRgb(213, 240, 222));
                 }
                 else
@@ -359,6 +413,18 @@ namespace WebResourcesImporter
                     TitleAction.Content = "Export action:";
                     SetMainWindowBackground(Color.FromRgb(213, 240, 222));
                     MessageBox.Show("No web resources selected.");
+                }
+            }
+        }
+
+        private void ProcessingControlsEnabled(bool flag, string partName)
+        {
+            foreach (var item in MainGrid.Children)
+            {
+                var checkBox = item as CheckBox;
+                if (checkBox != null && checkBox.Name != null && checkBox.Name.Contains(partName))
+                {
+                    checkBox.IsEnabled = flag;
                 }
             }
         }
