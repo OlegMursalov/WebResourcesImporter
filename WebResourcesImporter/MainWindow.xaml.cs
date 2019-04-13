@@ -83,7 +83,7 @@ namespace WebResourcesImporter
             SetMainWindowBackground(Color.FromRgb(243, 216, 215));
             ProcessingControlsEnabled(true, SOAPServiceUri, UserName, Password, Connect);
             ProcessingControlsVisibility(false, Disconnect, SolutionNameLabel, SolutionName, SelectSolution, SelectActionLabel, 
-                ImportRadio, ExportRadio, TitleAction, Import, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info);
+                ImportRadio, ExportRadio, TitleAction, Import, Export, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info);
             Info.Items.Clear();
             SolutionName.Text = string.Empty;
             ImportRadio.IsChecked = true;
@@ -228,7 +228,8 @@ namespace WebResourcesImporter
             OverwriteFilesCheckBox.IsChecked = false;
             ChangeTheCharactersCheckBox.IsChecked = false;
             Info.Items.Clear();
-            ProcessingControlsVisibility(false, SelectActionLabel, ImportRadio, ExportRadio, TitleAction, Import, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info);
+            ProcessingControlsVisibility(false, SelectActionLabel, ImportRadio, ExportRadio, TitleAction, Import, Export, SettingsImport, OverwriteFilesCheckBox, ChangeTheCharactersCheckBox, Info);
+            RemoveFileCheckBoxes();
         }
 
         private void OverwriteFilesCheckBox_Change(object sender, RoutedEventArgs e)
