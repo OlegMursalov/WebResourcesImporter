@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/loading.gif")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("main-icon.ico")]
 
 

@@ -13,6 +13,8 @@ using System.Windows;
 using System.Windows.Controls;
 using WinForms = System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Reflection;
 
 namespace WebResourcesImporter
 {
@@ -23,10 +25,21 @@ namespace WebResourcesImporter
         private ExportInfo _exportInfo = null;
 
         private static string types = "*.html;*.css;*.js;*.xml;*.png;*.jpg;*.gif;*.xap;*.xsl;*.ico;*.svg;*.resx";
+        private static string iconResName = "WebResourcesImporter.Content.main-icon.ico";
 
         public MainWindow()
         {
             InitializeComponent();
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream(iconResName);
+            if (stream != null)
+            {
+                var imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.StreamSource = stream;
+                imageSource.EndInit();
+                this.Icon = imageSource;
+            }
         }
 
         private async void Import_Click(object sender, RoutedEventArgs e)
